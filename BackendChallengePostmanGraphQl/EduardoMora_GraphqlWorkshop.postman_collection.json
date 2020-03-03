@@ -1,0 +1,509 @@
+{
+	"info": {
+		"_postman_id": "ae80c6bd-7603-4308-8e47-7671772e27ae",
+		"name": "EduardoMora_GraphqlWorkshop",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "listProjects",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query listProjects{\n  listProjects{\n    id,\n    name\n  }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listTodos",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query listTodos{\n  listTodos{\n    id,\n    todo,\n    status,\n    project{\n      id\n      name\n    }\n    comments{\n      id\n      text\n    }\n  }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createNewProject",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let id = jsonData.data.addProject.id;",
+							"",
+							"pm.environment.set(\"id_project\", id);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify id project stored\", function () {",
+							"    pm.expect(id).to.equal(pm.environment.get(\"id_project\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation addProject($input: ProjectInput!){\n    addProject(project:$input){\n        id\n        name\n    }\n}",
+						"variables": "{\n\t\"input\": {\n\t\t\"name\":\"Project_EduardoMora\"\n\t}\n}\n"
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createNewTask",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let id = jsonData.data.addTodo.id;",
+							"let todo = jsonData.data.addTodo.todo;",
+							"",
+							"pm.environment.set(\"id_task\", id);",
+							"pm.environment.set(\"name_todo\", todo);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify id task stored\", function () {",
+							"    pm.expect(id).to.equal(pm.environment.get(\"id_task\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation addTodo($input: TodoInput!){\n    addTodo(todo:$input){\n        id\n        todo\n        status\n        project{\n          id\n          name\n        }\n        comments{\n          id\n          text\n        }\n    }\n}",
+						"variables": "{\n\t\"input\": {\n\t\t\"todo\":\"EduardoMora\",\n\t\t\"projectId\":\"{{id_project}}\"\n\t}\n}\n"
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateTask",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"let todo = jsonData.data.updateTodo.todo;",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify task name is updated\", function () {",
+							"    pm.expect(todo).to.eql(pm.environment.get(\"name_todo\")+\" updated\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation updateTodo{\nupdateTodo(todoId:\"{{id_task}}\",todo:\"{{name_todo}} updated\"){\n        id\n        todo\n        status\n  \t\t\tproject{\n          id\n          name\n        }\n    }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addComment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let id = jsonData.data.addComment.id;",
+							"",
+							"pm.environment.set(\"id_comentario\", id);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify id comment stored\", function () {",
+							"    pm.expect(id).to.equal(pm.environment.get(\"id_comentario\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation addComment($input: CommentInput!){\n    addComment(comment:$input){\n        id\n        text\n    }\n}",
+						"variables": "{\n  \"input\": {\n    \"todoId\": \"{{id_task}}\",\n    \"text\": \"Hola, soy el primer comentario\"\n    \n  }\n}"
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addComment2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let id = jsonData.data.addComment.id;",
+							"",
+							"pm.environment.set(\"id_comentario2\", id);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify id comment 2 stored\", function () {",
+							"    pm.expect(id).to.equal(pm.environment.get(\"id_comentario2\"));",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation addComment($input: CommentInput!){\n    addComment(comment:$input){\n        id\n        text\n    }\n}",
+						"variables": "{\n  \"input\": {\n    \"todoId\": \"{{id_task}}\",\n    \"text\": \"Comentario numero 2\"\n    \n  }\n}"
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteComment",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let idComment = jsonData.data.deleteComment;",
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Verify Comment is deleted\", function () {",
+							"    pm.expect(true).to.eql(idComment);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation deleteComment {\n    deleteComment(commentId:\"{{id_comentario2}}\")\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateStatusTask",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation updateTodo{\nupdateTodo(todoId:\"{{id_task}}\",status:COMPLETED){\n        id\n        todo\n        status\n  \t\t\tproject{\n          id\n          name\n        }\n    }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listTodosCompleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "58ca9550-b12b-45ca-9795-c4a7b8bfdd75",
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Completed project is there\", function () {",
+							"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"id_project\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query listTodos{\n  listTodos(showCompleted:true){\n    id,\n    todo,\n    status,\n    project{\n      id\n      name\n    }\n    comments{\n      id\n      text\n    }\n  } \n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listTodosPending",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "42b7a603-f31b-4dcb-873b-dd39cf45c064",
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Completed project is there\", function () {",
+							"    pm.expect(pm.response.text()).to.include(pm.environment.get(\"id_project\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query listTodos{\n  listTodos(showCompleted:false){\n    id,\n    todo,\n    status,\n    project{\n      id\n      name\n    }\n    comments{\n      id\n      text\n    }\n  } \n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteProject",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "00dc82cb-bb83-48d9-94b1-af8f58c6933f",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"let id = jsonData.data.addProject.id;",
+							"",
+							"pm.environment.set(\"id_project\", id);",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation deleteProject {\n    deleteProject(projectId:\"{{id_project}}\")\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "{{url}}",
+					"host": [
+						"{{url}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "QA2020",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b6dc889a-d1bd-4e2c-9949-6ebf83b22880",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "aa22d141-753d-4219-9ba9-9361652faa68",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
